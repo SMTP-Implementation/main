@@ -1,37 +1,45 @@
 import smtplib
 import re
+#lxpkuscllmssplxl
+def get_smtp_server(email):
+    if re.match(r'^[\w\.-]+@gmail\.com$', email):
+        return 'smtp.gmail.com', 587
+    elif re.match(r'^[\w\.-]+@(outlook|hotmail)\.(com|es)$', email):
+        return 'smtp-mail.outlook.com', 587
+    else:
+        return None, None
 
 def send_email():
-    # Pedir al usuario que introduzca su correo electrónico
+    # Pedir al usuario que introduzca su dirección de correo electrónico
     while True:
-        from_address = input("Introduce tu dirección de correo electrónico : ")
-        if re.match(r'^[\w\.-]+@alumno\.huergo\.edu\.ar$', from_address):
+        from_address = input("Introduce tu dirección de correo electrónico: ")
+        if re.match(r'^[\w\.-]+@(gmail|outlook|hotmail)\.(com|es)$', from_address):
             break
         else:
-            print("Correo electrónico no válido. Asegúrate de que sea un correo de Gmail.")
+            print("Dirección de correo electrónico no válida.")
 
     # Pedir al usuario que introduzca el mensaje
     message = input("Introduce el mensaje: ")
 
-    # Crear una lista vacía para almacenar los correos electrónicos de los destinatarios
+    # Crear una lista vacía para almacenar las direcciones de correo de los destinatarios
     to_addresses = []
 
-    # Pedir al usuario que introduzca los correos electrónicos de los destinatarios
+    # Pedir al usuario que introduzca las direcciones de correo de los destinatarios
     while True:
-        to_address = input("Introduce el correo electrónico del destinatario o ingresa 'q' para finalizar: ")
+        to_address = input("Introduce la dirección de correo del destinatario o ingresa 'q' para finalizar: ")
         if to_address.lower() == 'q':
             break
-        elif re.match(r'^[\w\.-]+@alumno\.huergo\.edu\.ar$', to_address):
+        elif re.match(r'^[\w\.-]+@[\w\.-]+\.[\w\.-]+$', to_address):
             to_addresses.append(to_address)
         else:
-            print("Correo electrónico no válido.")
+            print("Dirección de correo electrónico no válida.")
 
-    # Configurar los detalles del servidor SMTP
-    smtp_server = 'smtp.alumno.huergo.edu.ar'
-    smtp_port = 587
+    # Obtener el servidor SMTP correspondiente según el dominio del remitente
+    smtp_server, smtp_port = get_smtp_server(from_address)
 
-    # Configurar los detalles del correo electrónico
-    subject = 'Correo de prueba'
+    if smtp_server is None:
+        print("No se pudo determinar el servidor SMTP para el remitente.")
+        return
 
     # Conectar al servidor SMTP
     server = smtplib.SMTP(smtp_server, smtp_port)
@@ -46,7 +54,7 @@ def send_email():
 
         for to_address in to_addresses:
             # Crear el mensaje de correo electrónico
-            message_body = f'From: {from_address}\nTo: {to_address}\nSubject: {subject}\n\n{message}'
+            message_body = f'From: {from_address}\nTo: {to_address}\nSubject: Correo de prueba\n\n{message}'
 
             # Enviar el correo electrónico
             server.sendmail(from_address, to_address, message_body)
